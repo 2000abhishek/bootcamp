@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+<head>
+	
+		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+
+	
+
+	<title></title>
+	<script type="text/javascript">
+		function query(){
+			xyz = new XMLHttpRequest();
+			xyz.onreadystatechange=function(){
+				if (this.readyState == 4 && this.status == 200){
+					z=JSON.parse(this.responseText);
+					
+					for(i=0;i<z;i++)
+					{
+
+						document.getElementById("col1").innerHTML = z.User_Name;
+						document.getElementById("col2").innerHTML = z.User_Comment;
+					}
+				}
+			}
+			xyz.open('POST','/query',true);
+			xyz.send();
+		}
+		query();
+		function logout()      //logout session delete ajax call
+		{
+			xyz = new XMLHttpRequest();
+			xyz.open('POST', '/logout',true);
+			xyz.send();
+		}
+		function show()       //onclick open-close Post,Cancel,Compose button
+		{
+           var x=document.getElementById("open");
+           if(x.style.display==="none")
+           {
+           	x.style.display="block";
+           }
+           else
+           {
+           	x.style.display="none";
+           }
+		}
+		function comment_ajax()         //comment post ajax call
+		{
+			var comment = document.getElementById('comment').value;
+			if(comment==="")
+			{
+
+			}
+			else
+			{
+				var params = {
+				"comment" : comment
+				}
+				abc = new XMLHttpRequest();
+				abc.open('POST', '/comment_post',true);
+				abc.setRequestHeader("Content-type", "application/json");
+				abc.onreadystatechange=function(){
+					if(this.readyState==4 && this.status==200) {
+                   
+					}
+				}
+				abc.send(JSON.stringify(params));
+			
+			}
+			
+		}
+	</script>
+	<style type="text/css">
+	    body{
+	    	margin:0px;
+	    	font-family: 'Open Sans';
+	    }
+
+		.navbar{
+			background-color: #f8f8f8;
+		    border-color: #e7e7e7;
+		    position:relative;
+            margin-bottom: 20px;
+            padding:0px 40px;
+            display: flex;
+            align-items: center; 
+            height: 60px ;
+            justify-content: space-between;
+	    }
+		#notifications {
+		    font-size: 1.5em;
+		    color: #dddddd;
+		}
+		.navbar-brand{
+			color:#777;
+			line-height: 20px;
+            font-size:1.4em;
+            font-family: Audiowide, cursive;
+		}
+		.color{
+            color: #777;
+        }
+        
+        .blok{
+            padding:13px;
+        }
+        
+        .search{
+        	font-size: 14px;
+            line-height: 1.42857143;
+            padding:6px 12px; 
+            border: 1px solid #ccc;
+        }
+        .search_button{
+        	border: 1px solid transparent;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 6px 12px;
+            background-color: #fff;
+            border-color: #ccc;
+        }
+        .page-header{
+        	margin:0px;
+        	padding-bottom: 9px;
+        	border-bottom: 1px solid black;
+        	margin-bottom: 0px;
+        }
+        .btn{
+        	float: right;
+        	color: #fff;
+        	background-color: #337ab7;
+    		border-color: #2e6da4;
+            padding: 10px 20px;
+            cursor: pointer;
+    
+        }
+        .btn:hover{
+            opacity: 0.5;
+        }
+        .focus_blue:focus{
+        	border-color: #66afe9;
+        }
+	</style>
+</head>
+<body>
+<nav class="navbar">
+	<div>
+		    <a class="navbar-brand" href="/">Bootcamp</a>
+			<span class="blok">
+				<a class="color" href="#" id="notifications"><i class="color far fa-bell"></i></a>
+			</span>
+			<span class="blok">
+				<a class="color" href="/feeds/">Feed</a>
+			</span>
+			<span class="blok">
+				<a class="color" href="/articles/">Articles</a>
+			</span>
+			<span class="blok">
+				<a class="color" href="/questions/">Q&A</a>
+			</span>
+			<span class="blok">
+				<a class="color" href="/network/">Network</a>
+			</span>
+			<span class="blok">
+				<a class="color" href="/messages/">Inbox  <span class="badge" id="unread-count">0</span></a>
+			</span>
+		
+	</div>
+	<div>
+		<div>
+		    <input class="search" type="text" placeholder="Search">
+		    <button class="search_button"><i class="fas fa-search"></i></button>
+		</div>
+		<div>
+			<button onclick="logout()">Log Out</button>
+		</div>
+	</div>
+</nav>
+
+<div style="margin-left: 25%;margin-right: 25%;border:1px solid black;padding:10px;">
+	<div class="page-header">
+        <button onclick="show()" type="button" class="btn" title="Press Ctrl + P to compose" style="border: 1px solid black;border-radius: 4px;">
+        	<i style="color: white" class="fas fa-share"></i>
+        	<span style="font-style:20px">Compose</span> 
+        </button>
+        <h1>Feed</h1>
+    </div>
+    <div style="padding:10px; background-color: rgb(236, 240, 241);border:1px solid black">
+    	<span style="font-weight: 500;font-size: 20px">Latest Posts</span>
+    </div>
+    <div id="open" style="display: none;">
+    	<div style="padding:10px;">
+    		<div style="margin-top: 20px;margin-bottom: 10px;">Compose a new post</div>
+    		<textarea rows="4" class="focus_blue" id="comment" style="width: 100%;border-radius: 5px;"></textarea>
+    	</div>
+    	<div>
+    		<button onclick="comment_ajax(); show()" style="background-color: #337ab7;border-radius: 4px;padding:8px 14px;border:none;">Post</button>
+    		<button style="border: none;padding: 8px 12px;border-radius: 4px;" onclick="show()">Cancel</button>
+    	</div>
+    </div>
+</div>
+
+<div style="margin-left: 25%;margin-right: 25%; padding:10px 3px" id="list">
+	<div id="col1"></div>
+	<div id="col2"></div>
+</div>
+
+</body>
+</html>
