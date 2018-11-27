@@ -12,10 +12,16 @@ class user_information(models.Model):
 	Mobile_no=models.CharField(max_length=20)
 	
 
-class comment_send(models.Model):
+class first_level_comment(models.Model):
 	User_Name=models.CharField(max_length=40)
 	User_Comment=models.CharField(max_length=1000)
-    
-    
+	Current_Time= models.DateTimeField(auto_now_add=True)
 
-	 
+class first_level_like(models.Model):
+	User_Name=models.CharField(max_length=40)
+	User_Comment_ID=models.IntegerField()
+
+class second_level_comment(models.Model):
+	User_Name=models.CharField(max_length=40)
+	User_Comment_ID=models.IntegerField()
+	User_Comment_Post=models.CharField(max_length=1000)

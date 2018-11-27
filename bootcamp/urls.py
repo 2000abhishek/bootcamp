@@ -32,5 +32,7 @@ urlpatterns = [
 	url(r'^article',views.Article),
 	url(r'^comment_post',views.comment_post),
 	url(r'^logout',views.Logout),
-	url(r'^query',views.query)
+	url(r'^query',views.query),
+	url(r'^like',views.likeController),
+	url(r'^unlike',views.unlikeController)
 	]

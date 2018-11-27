@@ -14,12 +14,16 @@ from django.template.loader import get_template
 
 from django.shortcuts import render
 from abcd.models import user_information
-from abcd.models import comment_send
-
+from abcd.models import first_level_comment
+from abcd.models import first_level_like
 from django.template import RequestContext
+from dateutil import tz
+import datetime
+import dateutil.relativedelta
 
 import requests
 import json
+
 @api_view(["POST"])
 def Signup(request):
 	try: #IN AJAX CALL JSON DATA COMES IN request.body not in request.post.
@@ -98,19 +102,76 @@ def Feed(request):
 	except ValueError as e:
 		return Response(e.args[0],status.HTTP_400_BAD_REQUEST)
 
+
 @api_view(["POST"])
 def query(request):
 	try:
-		abc = (comment_send.objects.all())
-		rows=[]
+		comment_set = first_level_comment.objects.all()
 		
-		for i in abc:
+		liked=[]
+		like_set = first_level_like.objects.all().filter(User_Name=request.session['username'])
+		rows=[]
+		for like_row in like_set:
+			liked.append(like_row.User_Comment_ID)
+
+		for comment_row in comment_set:
 			row={}
-			row['User_Name']=i.User_Name
-			row['User_Comment']=i.User_Comment
+			from_zone = tz.gettz('UTC')
+			to_zone = tz.gettz('Asia/Kolkata')
+			# utc = datetime.datetime.strptime(i.Current_Time, '%Y-%m-%d %H:%M:%S')
+			# print(i.Current_Time)
+			utc = comment_row.Current_Time.replace(tzinfo=from_zone)
+			central = utc.astimezone(to_zone)
+			
+			comment_date=central.date()
+			year=comment_row.Current_Time.year
+			month=comment_row.Current_Time.month
+			day=comment_row.Current_Time.day
+			hour=comment_row.Current_Time.hour
+			minute=comment_row.Current_Time.minute
+
+
+			today=datetime.datetime.now()
+			print(today)
+			t_year=today.year
+			t_month=today.month
+			t_day=today.day
+			t_hour=today.hour
+			t_minute=today.minute
+
+			d_year=t_year-year
+			d_month=t_month-month
+			d_day=t_day-day
+			d_hour=t_hour-hour
+			d_minute=t_minute-minute
+		
+			if d_minute<1 and d_hour==0 and d_day==0 and d_month==0 and d_year==0:
+				time_ago="now"
+			elif d_minute>=1 and d_hour==0 and d_day==0 and d_month==0 and d_year==0:
+				time_ago=str(d_minute)+"min ago"
+				print(time_ago)
+			elif d_hour>=1 and d_day==0 and d_month==0 and d_year==0: 
+				time_ago=str(d_hour)+"h ago"
+				print(time_ago)
+			elif d_day>=1 and d_month==0 and d_year==0:
+				time_ago=str(d_day)+"d ago"
+				print(time_ago)
+			elif d_month>=1 and d_year==0:
+				time_ago=str(d_month)+"mon ago"
+				print(time_ago)
+			elif d_year>=1:
+				time_ago=str(d_year)+"y ago"
+				print(time_ago)
+			row['User_Comment_ID']=comment_row.id
+			row['User_Name']=comment_row.User_Name
+			row['User_Comment']=comment_row.User_Comment
+			row['Current_Time']=time_ago
 			rows.append(row)
-			 
-		return JsonResponse(rows,safe=False)
+
+		sending={}
+		sending["comments"]=(rows)
+		sending["liked"]=(liked)	
+		return JsonResponse(sending,safe=False)
 	except ValueError as e:
 		return Response(e.args[0],status.HTTP_400_BAD_REQUEST)
 
@@ -121,16 +182,15 @@ def Article(request):
 	except ValueError as e:
 		return Response(e.args[0],status.HTTP_400_BAD_REQUEST)
 
+import datetime
 @api_view(["POST"])
 def comment_post(request):
 	try:
 		comment=json.loads(request.body) #json.loads converts json object or string into 
-		print(comment)
 		username=request.session['username']
-		print(username)
 		comment=comment['comment']
-		print(comment)
-		a=comment_send(User_Name=username,User_Comment=comment)
+		now = datetime.datetime.now()
+		a=first_level_comment(User_Name=username,User_Comment=comment,Current_Time=now)
 		a.save()
 		return HttpResponse("Done")
 	except ValueError as e:
@@ -142,5 +202,29 @@ def Logout(request):
 	try:
 		logout(request)
 		return redirect('/home')
+	except ValueError as e:
+		return Response(e.args[0],status.HTTP_400_BAD_REQUEST)
+
+@api_view(["POST"])
+def likeController(request):
+	try:
+		param=json.loads(request.body)
+		username=request.session['username']
+		ID=param['ID']
+		a=first_level_like(User_Name=username,User_Comment_ID=ID)
+		a.save()
+		return JsonResponse("ok",safe=False)
+	except ValueError as e:
+		print(e)
+		return Response(e.args[0],status.HTTP_400_BAD_REQUEST)
+
+@api_view(["POST"])
+def unlikeController(request):
+	try:
+		param=json.loads(request.body)
+		username=request.session['username']
+		ID=param['ID']
+		first_level_like.objects.all.filter(User_Comment_ID=ID).delete()
+
 	except ValueError as e:
 		return Response(e.args[0],status.HTTP_400_BAD_REQUEST)
