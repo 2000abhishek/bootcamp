@@ -135,47 +135,43 @@
 		
 		
 		function like() {
-			console.log(this)
-			console(document.querySelector('.like'))
+			ref=this
 			abc = new XMLHttpRequest();
 			abc.open('POST', '/like',true);
 			abc.setRequestHeader("Content-type", "application/json");
 
 			abc.onreadystatechange=function(){
 				if(this.readyState==4 && this.status==200) {
-					this.innerHTML='Unlike';
+					ref.innerHTML='Unlike ()';
 				}
 			}
-			var r1 = this.closest(".comment_box"); 
-			var r2 = (r1.dataset['User_Comment_ID']);
+			var r1 = this.closest(".comment_box");
+			var r2 = (r1.dataset['user_comment_id']);
 			var params={
 				"ID":r2
 			}
 			abc.send(JSON.stringify(params));
-			abc.onreadystatechange();
 		}
 		
 		
 		
 		function unlike() {
-			console.log(this)
-			console.log(document.querySelector('unlike'))
+			ref=this
 			abc=new XMLHttpRequest();
 			abc.open('POST','/unlike',true);
 			abc.setRequestHeader("Content-type", "application/json");
 
 			abc.onreadystatechange=function(){
 				if(this.readyState==4 && this.status==200) {
-					this.innerHTML='Like';
+					ref.innerHTML='Like';
 				}
 			}
 			var r1=this.closest(".comment_box");
-			var r2=(r1.dataset['User_Comment_ID']);
+			var r2=(r1.dataset['user_comment_id']);
 			var params={
 				"ID":r2
 			}
 			abc.send(JSON.stringify(params));
-			abc.onreadystatechange();
 		}
 		
 	</script>

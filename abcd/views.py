@@ -208,9 +208,12 @@ def Logout(request):
 @api_view(["POST"])
 def likeController(request):
 	try:
-		param=json.loads(request.body)
+		params=json.loads(request.body)
+		print(params)
 		username=request.session['username']
-		ID=param['ID']
+		print(username)
+		ID=params['ID']
+		print(ID)
 		a=first_level_like(User_Name=username,User_Comment_ID=ID)
 		a.save()
 		return JsonResponse("ok",safe=False)
@@ -221,10 +224,13 @@ def likeController(request):
 @api_view(["POST"])
 def unlikeController(request):
 	try:
-		param=json.loads(request.body)
+		params=json.loads(request.body)
+		print(params)
 		username=request.session['username']
-		ID=param['ID']
-		first_level_like.objects.all.filter(User_Comment_ID=ID).delete()
-
+		ID=params['ID']
+		print(ID)
+		a=first_level_like.objects.all().filter(User_Comment_ID=ID).delete()
+		print(a)
+		return JsonResponse("OK",safe=False)
 	except ValueError as e:
 		return Response(e.args[0],status.HTTP_400_BAD_REQUEST)
